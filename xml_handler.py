@@ -4,7 +4,7 @@
 
 # import xml.etree.ElementTree as ET
 
-from lxml import etree as ET
+from lxml import etree
 
 def removeTag(tagNameStr, parent):
     for tag in parent.findall(tagNameStr):
@@ -20,14 +20,14 @@ def reInsert(index, tag, parent):
     parent.insert(index, tag)
 
 def createParam(name, text):
-    param = ET.Element('param')
-    param.set('name', name)
-    param.text = text
+    paramElement = etree.Element('param')
+    paramElement.set('name', name)
+    paramElement.text = text
 
-    return param
+    return paramElement
 
-parser = ET.XMLParser(remove_blank_text=True)
-tree = ET.parse('mahrofstore.xml', parser)
+parser = etree.XMLParser(remove_blank_text=True)
+tree = etree.parse('mahrofstore.xml', parser)
 root = tree.getroot()
 shop = root[0]
 offers = shop[5]
@@ -56,7 +56,7 @@ for offer in offers:
         vendorName = vendor.text
         reInsert(lastPictureTagIndex, vendor, offer)
 
-    stock_quantity = ET.Element('stock_quantity')
+    stock_quantity = etree.Element('stock_quantity')
     stock_quantity.text = '1'
 
     offer.insert(lastPictureTagIndex + 1, stock_quantity)
