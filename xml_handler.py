@@ -56,6 +56,16 @@ for offer in offers:
     vendorNameText = offer.find('vendor').text if offer.find('vendor') is not None else 'Ашгабатская Текстильная фабрика'
     vendorCodeText = offer.find('vendorCode').text
     offerNameText = offer.find('name').text
+    isLinen = False
+    isBathrobe = False
+    isSheet = False
+
+    if 'белье' in offerNameText:
+        isLinen = True
+    elif 'халат' in offerNameText:
+        isBathrobe = True
+    elif 'простыня' in offerNameText:
+        isSheet = True
 
     # removing unused elements
     removeTag('delivery', offer)
@@ -104,6 +114,16 @@ for offer in offers:
     width = None
     length = None
 
+    # linen
+    linenSize = None
+    duvetCoverWidth = None
+    duvetCoverLength = None
+    duvetCoverDimensions = None
+    linenWidth = None
+    linenLength = None
+    linenDimensions = None
+    linenManufacturer = createParam('Производитель', vendorNameText)
+
     # removing params
     for param in offer.findall('param'):
         paramName = param.get('name', default=None)
@@ -111,42 +131,68 @@ for offer in offers:
         if paramName is None:
             continue
 
-        if paramName == 'Ширина':
-            width = param.text
-        elif paramName == 'Длина':
-            length = param.text
-        elif paramName == 'Цвет':
-            color = createParam('Цвет', str(param.text).capitalize())
-        elif paramName == 'Плотность':
-            density = createParam('Плотность материала', str(round(float(param.text))))
-        elif paramName == 'Хлопок':
-            materialFeatures = createParam('Особенности материала', '100% хлопок')
-        elif paramName == 'Назначение полотенца':
-            purpose = createParam('Назначение', str(param.text))
-        elif paramName == 'Тематика декора, рисунка':
-            decor = createParam('Декорирование', str(param.text).strip().capitalize())
-        elif paramName == 'Подарочная упаковка' and param.text == 'да':
-            features = createParam('Особенности', 'Подарочные')
+        if isLinen: # если это белье
+            if paramName == 'Тип комплекта':
+                if param.text == 'Полуторный':
+                    linenSize = createParam('Размер', '1.5-спальный')
+            elif paramName == 'Тип ткани':
+                material = createParam('Материал', str(param.text).capitalize())
+            elif paramName == 'Ширина пододеяльника':
+                duvetCoverWidth = param.text
+            elif paramName == 'Длина пододеяльника':
+                duvetCoverLength = param.text
+            elif paramName == 'Ширина простыни':
+                linenWidth = param.text
+            elif paramName == 'Длина простыни':
+                linenLength = param.text
+        else:   # если это полотенце
+            if paramName == 'Ширина':
+                width = param.text
+            elif paramName == 'Длина':
+                length = param.text
+            elif paramName == 'Цвет':
+                color = createParam('Цвет', str(param.text).capitalize())
+            elif paramName == 'Плотность':
+                density = createParam('Плотность материала', str(round(float(param.text))))
+            elif paramName == 'Хлопок':
+                materialFeatures = createParam('Особенности материала', '100% хлопок')
+            elif paramName == 'Назначение полотенца':
+                purpose = createParam('Назначение', str(param.text))
+            elif paramName == 'Тематика декора, рисунка':
+                decor = createParam('Декорирование', str(param.text).strip().capitalize())
+            elif paramName == 'Подарочная упаковка' and param.text == 'да':
+                features = createParam('Особенности', 'Подарочные')
 
         offer.remove(param)
 
     # appending params
-    if width is not None:
-        dimensions = createParam('Размеры', str(round(float(width))) + 'х' + str(round(float(length))) + ' см')
-        offer.append(dimensions)
+    if isLinen:
+        if duvetCoverWidth is not None:
+            duvetCoverDimensions = createParam('Размер пододеяльника', str(round(float(duvetCoverWidth))) + 'х' + str(round(float(duvetCoverLength))) + ' см')
+            offer.append(duvetCoverDimensions)
 
-    if color is not None: offer.append(color)
+        if linenWidth is not None:
+            linenDimensions = createParam('Размер простыни', str(round(float(linenWidth))) + 'х' + str(round(float(linenLength))) + ' см')
+            offer.append(linenDimensions)
 
-    offer.append(equipment)
+        offer.append(linenManufacturer)
+    else:
+        if width is not None:
+            dimensions = createParam('Размеры', str(round(float(width))) + 'х' + str(round(float(length))) + ' см')
+            offer.append(dimensions)
 
-    if materialFeatures is not None: offer.append(materialFeatures)
+        if color is not None: offer.append(color)
 
-    offer.append(material)
+        offer.append(equipment)
 
-    if density is not None: offer.append(density)
-    if decor is not None: offer.append(decor)
-    if purpose is not None: offer.append(purpose)
-    if features is not None: offer.append(features)
+        if materialFeatures is not None: offer.append(materialFeatures)
+
+        offer.append(material)
+
+        if density is not None: offer.append(density)
+        if decor is not None: offer.append(decor)
+        if purpose is not None: offer.append(purpose)
+        if features is not None: offer.append(features)
 
     offer.append(manufacturerCountry)
     offer.append(registrationCountry)
