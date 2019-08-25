@@ -78,8 +78,8 @@ for offer in offers:
 
     #removing unnecessary text from description
     for description in offer.findall('description'):
-        sliceIndex = str(description.text).find('опт/розница')
-        description.text = '<![CDATA[' + str(description.text)[:sliceIndex].rstrip() + ']]>'
+        sliceIndex = str(description.text).lower().find('опт/розница')
+        description.text = '<![CDATA[' + str(description.text)[:sliceIndex].rstrip().replace('\n', ' ') + ']]>'
         reInsert(lastPictureTagIndex + 2, description, offer)
 
     for vendor in offer.findall('vendor'):
@@ -123,6 +123,11 @@ for offer in offers:
     linenLength = None
     linenDimensions = None
     linenManufacturer = createParam('Производитель', vendorNameText)
+    pillowcaseWidth = None
+    pillowcaseLength = None
+    pillowcaseSecondWidth = None
+    pillowcaseSecondLength = None
+    pillowcaseDimensions = None
 
     # removing params
     for param in offer.findall('param'):
@@ -145,6 +150,14 @@ for offer in offers:
                 linenWidth = param.text
             elif paramName == 'Длина простыни':
                 linenLength = param.text
+            elif paramName == 'Ширина наволочки':
+                pillowcaseWidth = param.text
+            elif paramName == 'Длина наволочки':
+                pillowcaseLength = param.text
+            elif paramName == 'Ширина второй наволочки':
+                pillowcaseSecondWidth = param.text
+            elif paramName == 'Длина второй наволочки':
+                pillowcaseSecondLength = param.text
         else:   # если это полотенце
             if paramName == 'Ширина':
                 width = param.text
@@ -174,6 +187,22 @@ for offer in offers:
         if linenWidth is not None:
             linenDimensions = createParam('Размер простыни', str(round(float(linenWidth))) + 'х' + str(round(float(linenLength))) + ' см')
             offer.append(linenDimensions)
+
+        if pillowcaseWidth is not None:
+            if pillowcaseSecondWidth is not None:
+                pcFirstWidth = round(float(pillowcaseWidth))
+                pcFirstLength = round(float(pillowcaseLength))
+                pcSecondWidth = round(float(pillowcaseSecondWidth))
+                pcSecondLength = round(float(pillowcaseSecondLength))
+
+                if pcFirstWidth == pcSecondWidth and pcFirstLength == pcSecondLength:
+                    pillowcaseDimensions = createParam('Размер наволочки', '2 х ' + str(pcFirstWidth) + 'х' + str(pcFirstLength) + ' см')
+                elif pcFirstWidth != pcSecondWidth or pcFirstLength != pcSecondLength:
+                    pillowcaseDimensions = createParam('Размер наволочки', str(pcFirstWidth) + 'х' + str(pcFirstLength) + ' см, ' + str(pcSecondWidth) + 'х' + str(pcSecondLength) + ' см')
+            else:
+                pillowcaseDimensions = createParam('Размер наволочки', str(round(float(pillowcaseWidth))) + 'х' + str(round(float(pillowcaseLength))) + ' см')
+
+            offer.append(pillowcaseDimensions)
 
         offer.append(linenManufacturer)
     else:
