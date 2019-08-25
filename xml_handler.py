@@ -129,6 +129,15 @@ for offer in offers:
     pillowcaseSecondLength = None
     pillowcaseDimensions = None
 
+    # bathrobe
+    bathrobeColor = None
+    bathrobeLook = None
+    bathrobeFeatures = None
+    bathrobeFeaturesFilled = False
+    bathrobeSex = None
+    sleeveLength = None
+    bathrobeLength = None
+
     # removing params
     for param in offer.findall('param'):
         paramName = param.get('name', default=None)
@@ -140,6 +149,14 @@ for offer in offers:
             if paramName == 'Тип комплекта':
                 if param.text == 'Полуторный':
                     linenSize = createParam('Размер', '1.5-спальный')
+                elif param.text == 'Семейный':
+                    linenSize = createParam('Размер', 'Семейный')
+                elif param.text == 'Двуспальный':
+                    linenSize = createParam('Размер', '2-спальный')
+                elif param.text == 'Односпальный':
+                    linenSize = createParam('Размер', '1-спальный')
+                elif param.text == 'Двуспальный Евро':
+                    linenSize = createParam('Размер', 'Евро')
             elif paramName == 'Тип ткани':
                 material = createParam('Материал', str(param.text).capitalize())
             elif paramName == 'Ширина пододеяльника':
@@ -158,6 +175,32 @@ for offer in offers:
                 pillowcaseSecondWidth = param.text
             elif paramName == 'Длина второй наволочки':
                 pillowcaseSecondLength = param.text
+        elif isBathrobe: # если это халат
+            if paramName == 'Цвет':
+                bathrobeColor = createParam('Цвет', str(param.text).capitalize().strip())
+            elif paramName == 'Тип халата' and param.text == 'Банные':
+                bathrobeLook = createParam('Вид', 'Банные')
+            elif paramName == 'Наличие капюшона':
+                if param.text == 'да':
+                    bathrobeFeatures = createParam('Особенности модели', 'С капюшоном')
+                elif param.text == 'нет':
+                    bathrobeFeatures = createParam('Особенности модели', 'Без капюшона')
+                bathrobeFeaturesFilled = True
+            elif paramName == 'Наличие карманов' and param.text == 'да' and not bathrobeFeaturesFilled:
+                bathrobeFeatures = createParam('Особенности модели', 'С карманами')
+                bathrobeFeaturesFilled = True
+            elif paramName == 'Наличие пояса' and param.text == 'да' and not bathrobeFeaturesFilled:
+                bathrobeFeatures = createParam('Особенности модели', 'С поясом')
+                bathrobeFeaturesFilled = True
+            elif paramName == 'Пол':
+                bathrobeSex = createParam('Пол', str(param.text).capitalize())
+            elif paramName == 'Длина рукава':
+                if param.text == 'Длинный':
+                    sleeveLength = createParam('Длина рукава', 'С длинными рукавами')
+                else:
+                    sleeveLength = createParam('Длина рукава', 'С короткими рукавами')
+            elif paramName == 'Длина халата':
+                bathrobeLength = createParam('Длина халата', str(param.text).capitalize())
         else:   # если это полотенце
             if paramName == 'Ширина':
                 width = param.text
@@ -180,6 +223,8 @@ for offer in offers:
 
     # appending params
     if isLinen:
+        if linenSize is not None: offer.append(linenSize)
+        if material is not None: offer.append(material)
         if duvetCoverWidth is not None:
             duvetCoverDimensions = createParam('Размер пододеяльника', str(round(float(duvetCoverWidth))) + 'х' + str(round(float(duvetCoverLength))) + ' см')
             offer.append(duvetCoverDimensions)
@@ -205,6 +250,23 @@ for offer in offers:
             offer.append(pillowcaseDimensions)
 
         offer.append(linenManufacturer)
+    elif isBathrobe:
+        offer.append(linenManufacturer)
+
+        if sleeveLength is not None: offer.append(sleeveLength)
+        if bathrobeLength is not None: offer.append(bathrobeLength)
+        if bathrobeColor is not None: offer.append(bathrobeColor)
+        if bathrobeFeatures is not None: offer.append(bathrobeFeatures)
+
+        if bathrobeSex is not None:
+            offer.append(bathrobeSex)
+        else:
+            if 'женский' in offerNameText:
+                offer.append(createParam('Пол', 'Женский'))
+            elif 'мужской' in offerNameText:
+                offer.append(createParam('Пол', 'Мужской'))
+            elif 'детский' in offerNameText:
+                offer.append(createParam('Пол', 'Детский'))
     else:
         if width is not None:
             dimensions = createParam('Размеры', str(round(float(width))) + 'х' + str(round(float(length))) + ' см')
@@ -230,6 +292,4 @@ tree.write('output.xml', encoding='UTF-8', xml_declaration=True, pretty_print=Tr
 
 
 # простыня 113683
-# халат 113720
 # простыня и наволочка 113803
-# белье 113524
