@@ -3,6 +3,7 @@
 # see https://lxml.de/tutorial.html
 
 # import xml.etree.ElementTree as ET
+import re
 
 from lxml import etree
 
@@ -79,7 +80,8 @@ for offer in offers:
     #removing unnecessary text from description
     for description in offer.findall('description'):
         sliceIndex = str(description.text).lower().find('опт/розница')
-        description.text = '<![CDATA[' + str(description.text)[:sliceIndex].rstrip().replace('\n', ' ') + ']]>'
+        description.text = re.sub(r'\n+', ' ', str(description.text)[:sliceIndex].rstrip())
+        description.text = '<![CDATA[<p>' + description.text + '</p>]]>'
         reInsert(lastPictureTagIndex + 2, description, offer)
 
     for vendor in offer.findall('vendor'):
