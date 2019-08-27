@@ -61,11 +61,11 @@ for offer in offers:
     isBathrobe = False
     isSheet = False
 
-    if 'белье' in offerNameText:
+    if 'белье' in offerNameText.lower():
         isLinen = True
-    elif 'халат' in offerNameText:
+    elif 'халат' in offerNameText.lower():
         isBathrobe = True
-    elif 'простыня' in offerNameText:
+    elif 'простыня' in offerNameText.lower():
         isSheet = True
 
     # removing unused elements
@@ -81,7 +81,7 @@ for offer in offers:
     for description in offer.findall('description'):
         sliceIndex = str(description.text).lower().find('опт/розница')
         description.text = re.sub(r'\n+', ' ', str(description.text)[:sliceIndex].rstrip())
-        description.text = '<![CDATA[<p>' + description.text + '</p>]]>'
+        description.text = '<![CDATA[<p>' + description.text + '</p>'
         reInsert(lastPictureTagIndex + 2, description, offer)
 
     for vendor in offer.findall('vendor'):
@@ -140,12 +140,28 @@ for offer in offers:
     sleeveLength = None
     bathrobeLength = None
 
+    # sheet
+    sheetWidth = None
+    sheetLength = None
+    sheetType = createParam('Тип', 'Простыни')
+    sheetSort = createParam('Вид', 'Махровые')
+    sheetMaterial = createParam('Материал', 'Махра')
+    sheetManufacturer = createParam('Производитель', vendorNameText)
+    sheetColor = None
+
+    descriptionTail = ''
     # removing params
     for param in offer.findall('param'):
         paramName = param.get('name', default=None)
+        paramUnit = param.get('unit', default=None)
 
         if paramName is None:
             continue
+
+        if paramUnit is None:
+            descriptionTail += '<p>' + paramName + ': ' + str(param.text) + '</p><br/>'
+        elif paramUnit != '':
+            descriptionTail += '<p>' + paramName + ': ' + str(param.text).rstrip() + ' ' + paramUnit + '</p><br/>'
 
         if isLinen: # если это белье
             if paramName == 'Тип комплекта':
@@ -203,6 +219,13 @@ for offer in offers:
                     sleeveLength = createParam('Длина рукава', 'С короткими рукавами')
             elif paramName == 'Длина халата':
                 bathrobeLength = createParam('Длина халата', str(param.text).capitalize())
+        elif isSheet:
+            if paramName == 'Цвет':
+                sheetColor = createParam('Цвет', str(param.text).capitalize())
+            elif paramName == 'Ширина простыни':
+                sheetWidth = param.text
+            elif paramName == 'Длина простыни':
+                sheetLength = param.text
         else:   # если это полотенце
             if paramName == 'Ширина':
                 width = param.text
@@ -222,6 +245,9 @@ for offer in offers:
                 features = createParam('Особенности', 'Подарочные')
 
         offer.remove(param)
+
+    offer.find('description').text += descriptionTail
+    offer.find('description').text = " ".join(offer.find('description').text.split()) + ']]>'
 
     # appending params
     if isLinen:
@@ -269,6 +295,17 @@ for offer in offers:
                 offer.append(createParam('Пол', 'Мужской'))
             elif 'детский' in offerNameText:
                 offer.append(createParam('Пол', 'Детский'))
+    elif isSheet:
+        if sheetWidth is not None:
+            sheetDimensions = createParam('Размеры', str(round(float(sheetWidth))) + 'х' + str(round(float(sheetLength))) + ' см')
+            offer.append(sheetDimensions)
+
+        offer.append(sheetType)
+        offer.append(sheetSort)
+        offer.append(sheetMaterial)
+        offer.append(sheetManufacturer)
+
+        if sheetColor is not None: offer.append(sheetColor)
     else:
         if width is not None:
             dimensions = createParam('Размеры', str(round(float(width))) + 'х' + str(round(float(length))) + ' см')
