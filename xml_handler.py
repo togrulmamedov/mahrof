@@ -253,14 +253,14 @@ for offer in offers:
                     sleeveLength = createParam('Длина рукава', 'С короткими рукавами')
             elif paramName == 'Длина халата':
                 bathrobeLength = createParam('Длина халата', str(param.text).capitalize())
-        elif isSheet:
+        elif isSheet:   # если это простыня
             if paramName == 'Цвет':
                 sheetColor = createParam('Цвет', str(param.text).rstrip().capitalize())
             elif paramName == 'Ширина простыни':
                 sheetWidth = param.text
             elif paramName == 'Длина простыни':
                 sheetLength = param.text
-        elif isPlaid:
+        elif isPlaid:   # если это плед
             if paramName == 'Ширина':
                 plaidWidth = param.text
             elif paramName == 'Длина':
