@@ -45,6 +45,7 @@ tree = etree.parse('mahrofstore.xml', parser)
 root = tree.getroot()
 shop = root[0]
 currencies = shop[3]
+categories = shop[4]
 offers = shop[5]
 
 # removing unused currencies
@@ -52,6 +53,11 @@ for currency in currencies:
     idParam = currency.get('id', default=None)
 
     if idParam != 'UAH': currencies.remove(currency)
+
+for category in categories:
+    category.text = category.text.rstrip().capitalize().replace('*', 'х')
+    category.text = " ".join(category.text.split())
+
 
 for offer in offers:
     vendorNameText = offer.find('vendor').text if offer.find('vendor') is not None else 'Ашгабатская Текстильная фабрика'

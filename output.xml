@@ -9,26 +9,26 @@
       <currency id="UAH" rate="1"/>
     </currencies>
     <categories>
-      <category id="60812678" parentId="60393232">Набор полотенец </category>
-      <category id="60393549" parentId="60393406">Махровое покрывало двухспальное (190*220 см)</category>
-      <category id="60393378" parentId="60393406">Махровая покрывало полуторное (155*220 см)</category>
+      <category id="60812678" parentId="60393232">Набор полотенец</category>
+      <category id="60393549" parentId="60393406">Махровое покрывало двухспальное (190х220 см)</category>
+      <category id="60393378" parentId="60393406">Махровая покрывало полуторное (155х220 см)</category>
       <category id="52030559" parentId="60393252">Детские халаты</category>
       <category id="52030555" parentId="60393252">Женские халаты</category>
       <category id="52030550" parentId="60393252">Мужские халаты</category>
-      <category id="51533514">пледы</category>
-      <category id="51538149">махровые перчатки </category>
+      <category id="51533514">Пледы</category>
+      <category id="51538149">Махровые перчатки</category>
       <category id="53005110">Постельное белье</category>
-      <category id="60393406">Махровое покрывало </category>
+      <category id="60393406">Махровое покрывало</category>
       <category id="60393252">Халаты</category>
-      <category id="52030471" parentId="60393232">махровые салфетки 33*33/30*30 см</category>
-      <category id="52030468" parentId="60393232">полотенце кухонное 30*50 см</category>
-      <category id="52030092" parentId="60393232">полотенце для рук  40*70 см</category>
-      <category id="52030094" parentId="60393232">полотенце/коврики для ног 50*70 см</category>
-      <category id="52029425" parentId="60393232">полотенце лицевое  50*90/50*100 см</category>
+      <category id="52030471" parentId="60393232">Махровые салфетки 33х33/30х30 см</category>
+      <category id="52030468" parentId="60393232">Полотенце кухонное 30х50 см</category>
+      <category id="52030092" parentId="60393232">Полотенце для рук 40х70 см</category>
+      <category id="52030094" parentId="60393232">Полотенце/коврики для ног 50х70 см</category>
+      <category id="52029425" parentId="60393232">Полотенце лицевое 50х90/50х100 см</category>
       <category id="60393232">Полотенце</category>
-      <category id="52029412" parentId="60393232">полотенце банное 70*140 см</category>
-      <category id="52029416" parentId="60393232">полотенце пляжное/сауна   100*150/100*180 см</category>
-      <category id="52029170" parentId="60393232">Детский уголок 100*100 см</category>
+      <category id="52029412" parentId="60393232">Полотенце банное 70х140 см</category>
+      <category id="52029416" parentId="60393232">Полотенце пляжное/сауна 100х150/100х180 см</category>
+      <category id="52029170" parentId="60393232">Детский уголок 100х100 см</category>
     </categories>
     <offers>
       <offer available="true" id="858467046">
