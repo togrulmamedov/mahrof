@@ -66,6 +66,7 @@ for offer in offers:
     isLinen = False
     isBathrobe = False
     isSheet = False
+    isPlaid = False
 
     if 'белье' in offerNameText.lower():
         isLinen = True
@@ -73,6 +74,8 @@ for offer in offers:
         isBathrobe = True
     elif 'простыня' in offerNameText.lower():
         isSheet = True
+    elif 'плед' in offerNameText.lower():
+        isPlaid = True
 
     # removing unused elements
     removeTag('delivery', offer)
@@ -155,6 +158,14 @@ for offer in offers:
     sheetManufacturer = createParam('Производитель', vendorNameText)
     sheetColor = None
 
+    # plaid
+    plaidWidth = None
+    plaidLength = None
+    plaidDecor = None
+    plaidComposition = None
+    plaidManufacturer = createParam('Производитель', vendorNameText)
+    plaidColor = None
+
     descriptionTail = ''
     # removing params
     for param in offer.findall('param'):
@@ -232,6 +243,17 @@ for offer in offers:
                 sheetWidth = param.text
             elif paramName == 'Длина простыни':
                 sheetLength = param.text
+        elif isPlaid:
+            if paramName == 'Ширина':
+                plaidWidth = param.text
+            elif paramName == 'Длина':
+                plaidLength = param.text
+            elif paramName == 'Бахрома' and param.text.lower() == 'есть':
+                plaidDecor = createParam('Декорирование', 'Бахрома')
+            elif paramName == 'Хлопок':
+                plaidComposition = createParam('Состав', 'Хлопок')
+            elif paramName == 'Цвет':
+                plaidColor = createParam('Цвет', str(param.text).rstrip().capitalize())
         else:   # если это полотенце
             if paramName == 'Ширина':
                 width = param.text
@@ -312,6 +334,17 @@ for offer in offers:
         offer.append(sheetManufacturer)
 
         if sheetColor is not None: offer.append(sheetColor)
+    elif isPlaid:
+        if plaidWidth is not None:
+            plaidDimensions = createParam('Размеры', str(round(float(plaidWidth))) + 'х' + str(round(float(plaidLength))) + ' см')
+            offer.append(plaidDimensions)
+
+        if plaidDecor is not None: offer.append(plaidDecor)
+        if plaidComposition is not None: offer.append(plaidComposition)
+
+        offer.append(plaidManufacturer)
+
+        if plaidColor is not None: offer.append(plaidColor)
     else:
         if width is not None:
             dimensions = createParam('Размеры', str(round(float(width))) + 'х' + str(round(float(length))) + ' см')
