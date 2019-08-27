@@ -407,8 +407,4 @@ for offer in offers:
     offer.append(manufacturerCountry)
     offer.append(registrationCountry)
 
-tree.write('output.xml', encoding='UTF-8', xml_declaration=True, pretty_print=True)
-
-
-# простыня 113683
-# простыня и наволочка 113803
+tree.write('rozetka.xml', encoding='UTF-8', xml_declaration=True, pretty_print=True)
