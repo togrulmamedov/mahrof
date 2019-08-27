@@ -40,13 +40,13 @@ def insertVendorName(venName, text):
 
     return text[:i] + venName + ' ' + text[i:]
 
-def handleName(name, venCodeText, venNameText, col=None):
+def handleName(name, venCodeText, venNameText, col=None, transformColor=True):
     name = str(name).rstrip().replace("*", "х")
 
     if col is None:
         name += ' (' + venCodeText + ')'
     else:
-        if col[-2:] == 'ый':
+        if col[-2:] == 'ый' and transformColor:
             col = col.replace('ый', 'ое')
         name += ' ' + col + ' (' + venCodeText + ')'
 
@@ -279,7 +279,7 @@ for offer in offers:
             elif paramName == 'Цвет':
                 color = createParam('Цвет', str(param.text).rstrip().capitalize())
             elif paramName == 'Плотность':
-                density = createParam('Плотность материала', str(round(float(param.text))))
+                density = createParam('Плотность материала, г/м²', str(round(float(param.text))))
             elif paramName == 'Хлопок':
                 materialFeatures = createParam('Особенности материала', '100% хлопок')
             elif paramName == 'Назначение полотенца':
@@ -379,7 +379,7 @@ for offer in offers:
 
         if plaidColor is not None:
             offer.append(plaidColor)
-            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText, col=plaidColor.text)
+            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText, col=plaidColor.text, transformColor=False)
         else:
             offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText)
     else:
