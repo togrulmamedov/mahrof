@@ -27,7 +27,7 @@ def createParam(name, text):
 
     return paramElement
 
-def insertVendorName(vendorName, text):
+def insertVendorName(venName, text):
     i = 0
 
     for index, character in enumerate(text):
@@ -38,7 +38,24 @@ def insertVendorName(vendorName, text):
     if i == 0:
         return None
 
-    return text[:i] + vendorName + ' ' + text[i:]
+    return text[:i] + venName + ' ' + text[i:]
+
+def handleName(name, venCodeText, venNameText, col=None):
+    name = str(name).rstrip().replace("*", "х")
+
+    if col is None:
+        name += ' (' + venCodeText + ')'
+    else:
+        if col[-2:] == 'ый':
+            col = col.replace('ый', 'ое')
+        name += ' ' + col + ' (' + venCodeText + ')'
+
+    textWithVendorName = insertVendorName(venNameText, name)
+
+    if textWithVendorName is not None:
+        name = insertVendorName(venNameText, name)
+
+    return name
 
 parser = etree.XMLParser(remove_blank_text=True)
 tree = etree.parse('mahrofstore.xml', parser)
@@ -102,13 +119,13 @@ for offer in offers:
 
     offer.insert(lastPictureTagIndex + 1, stock_quantity)
 
-    for name in offer.findall('name'):
-        name.text = str(name.text).rstrip().replace("*", "х")
-        name.text += ' (' + vendorCodeText + ')'
-        textWithVendorName = insertVendorName(vendorNameText, name.text)
+    # for name in offer.findall('name'):
+    #     name.text = str(name.text).rstrip().replace("*", "х")
+    #     name.text += ' (' + vendorCodeText + ')'
+    #     textWithVendorName = insertVendorName(vendorNameText, name.text)
 
-        if textWithVendorName is not None:
-            name.text = insertVendorName(vendorNameText, name.text)
+    #     if textWithVendorName is not None:
+    #         name.text = insertVendorName(vendorNameText, name.text)
 
     dimensions = None
     color = None
@@ -238,7 +255,7 @@ for offer in offers:
                 bathrobeLength = createParam('Длина халата', str(param.text).capitalize())
         elif isSheet:
             if paramName == 'Цвет':
-                sheetColor = createParam('Цвет', str(param.text).capitalize())
+                sheetColor = createParam('Цвет', str(param.text).rstrip().capitalize())
             elif paramName == 'Ширина простыни':
                 sheetWidth = param.text
             elif paramName == 'Длина простыни':
@@ -260,15 +277,21 @@ for offer in offers:
             elif paramName == 'Длина':
                 length = param.text
             elif paramName == 'Цвет':
-                color = createParam('Цвет', str(param.text).capitalize())
+                color = createParam('Цвет', str(param.text).rstrip().capitalize())
             elif paramName == 'Плотность':
                 density = createParam('Плотность материала', str(round(float(param.text))))
             elif paramName == 'Хлопок':
                 materialFeatures = createParam('Особенности материала', '100% хлопок')
             elif paramName == 'Назначение полотенца':
-                purpose = createParam('Назначение', str(param.text))
+                if str(param.text) == 'Для рук и лица':
+                    purpose = createParam('Назначение', 'Для рук')
+                else:
+                    purpose = createParam('Назначение', str(param.text))
             elif paramName == 'Тематика декора, рисунка':
-                decor = createParam('Декорирование', str(param.text).strip().capitalize())
+                if str(param.text).strip().capitalize() == 'Жаккардовая':
+                    decor = createParam('Декорирование', 'Жаккард')
+                else:
+                    decor = createParam('Декорирование', str(param.text).strip().capitalize())
             elif paramName == 'Подарочная упаковка' and param.text == 'да':
                 features = createParam('Особенности', 'Подарочные')
 
@@ -311,7 +334,13 @@ for offer in offers:
 
         if sleeveLength is not None: offer.append(sleeveLength)
         if bathrobeLength is not None: offer.append(bathrobeLength)
-        if bathrobeColor is not None: offer.append(bathrobeColor)
+
+        if bathrobeColor is not None:
+            offer.append(bathrobeColor)
+            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText, col=bathrobeColor.text)
+        else:
+            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText)
+
         if bathrobeFeatures is not None: offer.append(bathrobeFeatures)
 
         if bathrobeSex is not None:
@@ -333,7 +362,11 @@ for offer in offers:
         offer.append(sheetMaterial)
         offer.append(sheetManufacturer)
 
-        if sheetColor is not None: offer.append(sheetColor)
+        if sheetColor is not None:
+            offer.append(sheetColor)
+            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText, col=sheetColor.text)
+        else:
+            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText)
     elif isPlaid:
         if plaidWidth is not None:
             plaidDimensions = createParam('Размеры', str(round(float(plaidWidth))) + 'х' + str(round(float(plaidLength))) + ' см')
@@ -344,13 +377,21 @@ for offer in offers:
 
         offer.append(plaidManufacturer)
 
-        if plaidColor is not None: offer.append(plaidColor)
+        if plaidColor is not None:
+            offer.append(plaidColor)
+            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText, col=plaidColor.text)
+        else:
+            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText)
     else:
         if width is not None:
             dimensions = createParam('Размеры', str(round(float(width))) + 'х' + str(round(float(length))) + ' см')
             offer.append(dimensions)
 
-        if color is not None: offer.append(color)
+        if color is not None:
+            offer.append(color)
+            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText, col=color.text)
+        else:
+            offer.find('name').text = handleName(offer.find('name').text, vendorCodeText, vendorNameText)
 
         offer.append(equipment)
 
